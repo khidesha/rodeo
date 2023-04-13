@@ -104,7 +104,7 @@ export const assets = {
       symbol: "VSTA",
       address: "0xa684cd057951541187f288294a1e1C2646aA2d24",
       decimals: 18,
-      icon: "/assets/vsta.png",
+      icon: "/assets/vsta.svg",
     },
     "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8": {
       name: "Grail",
@@ -112,6 +112,20 @@ export const assets = {
       address: "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8",
       decimals: 18,
       icon: "/assets/grail.svg",
+    },
+    "0x64343594Ab9b56e99087BfA6F2335Db24c2d1F17": {
+      name: "Vesta Stable",
+      symbol: "VST",
+      address: "0x64343594Ab9b56e99087BfA6F2335Db24c2d1F17",
+      decimals: 18,
+      icon: "/assets/vst.svg",
+    },
+    "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F": {
+      name: "Frax",
+      symbol: "FRAX",
+      address: "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F",
+      decimals: 18,
+      icon: "/assets/frax.svg",
     },
   },
   "arbitrum-rinkeby": {},
@@ -192,6 +206,16 @@ export const tokens = {
     name: "GRAIL",
     description:
       "Camelot is an innovative and highly flexible DEX built to support the Arbitrum ecosystem. Community driven and capital efficient.",
+  },
+  "0x64343594Ab9b56e99087BfA6F2335Db24c2d1F17": {
+    name: "VST",
+    description:
+      "Vesta Finance allows you to borrow collateralized stablecoin VST against supported crypto assets with low interest rate.",
+  },
+  "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F": {
+    name: "FRAX",
+    description:
+      "The Frax Protocol introduced the world to the concept of a cryptocurrency being partially backed by collateral and partially stabilized algorithmically. With the vision to create highly scalable, decentralized money in place of fixed-supply digital assets like BTC.",
   },
 };
 
@@ -499,6 +523,30 @@ export const strategies = {
         },
         {
           ratio: 33,
+          address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        },
+      ],
+    },
+    {
+      name: "VST/FRAX",
+      protocol: "Curve",
+      icon: "/protocols/curve.svg",
+      address: "0xeB40EA021841d3d6191B76A0056863f52a71b2C5",
+      index: 29,
+      apy: { type: "defillama", id: "ab200c55-9a9b-464f-a426-d249ef28eec4" },
+      description:
+        "Mints curve VST/FRAX LP tokens and stakes them in the reward gauge. Collects trading fees and autocompounds rewards.",
+      slug: "crv-vst-frax",
+      slippage: 100,
+      isNew: true,
+      hidden: true,
+      assets: [
+        {
+          ratio: 50,
+          address: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+        },
+        {
+          ratio: 50,
           address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
         },
       ],

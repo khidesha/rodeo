@@ -33,6 +33,8 @@
 - OracleTWAP VSTA https://arbiscan.io/address/0x714c453756Ff2f511521A69158b6De859afE3899
 - OracleUniswapV2Usdc GRAIL https://arbiscan.io/address/0x63dd6107bbF26d03a0eF1f6EeC2aCe28C9FE37f0
 - OracleTWAP GRAIL https://arbiscan.io/address/0x0436E619b8cA1ea53d52dD5551ADE688f7F8C499
+- OracleCurveStable2 VST https://arbiscan.io/address/0x4f926aD0DD634060A2A61A1aE7Cf153125b0560E
+- OracleTWAP VST https://arbiscan.io/address/0x64fa380e7FBdbe6C6b275a692259C833C00750CC
 
 
 **Strategies**
@@ -54,6 +56,7 @@
 - StrategyMycelium MLP https://arbiscan.io/address/0x8D8627f0bb5A73035678289E5692766EDce341eA
 - StrategyBalancer VSTA/ETH https://arbiscan.io/address/0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7
 - StrategyCamelot ETH/USDC https://arbiscan.io/address/0x91308b8d5e2352C7953D88A55D1012D68bF1EfD0
+- StrategyCurveV2 VST/FRAX https://arbiscan.io/address/0xeB40EA021841d3d6191B76A0056863f52a71b2C5
 
 **Ops**
 

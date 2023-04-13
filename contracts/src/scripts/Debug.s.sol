@@ -10,8 +10,8 @@ import {Strategy} from "../Strategy.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
-import {OracleUniswapV2Usdc} from "../OracleUniswapV2Usdc.sol";
-import {StrategyCamelot} from "../StrategyCamelot.sol";
+import {OracleCurveStable2} from "../OracleCurveStable2.sol";
+import {StrategyCurveV2} from "../StrategyCurveV2.sol";
 
 import {console} from "../test/utils/console.sol";
 
@@ -33,10 +33,11 @@ contract Debug is DSTest, ERC721TokenReceiver {
 
         /*
         // DEPLOY NEW STRATEGY
-        StrategyCamelot s = new StrategyCamelot(
-            address(strategyHelper),
-            0x6dB1EF0dF42e30acF139A70C1Ed0B7E6c51dBf6d,
-            0x84652bb2539513BAf36e225c930Fdd8eaa63CE27
+        StrategyCurveV2 s = new StrategyCurveV2(
+            strategyHelper,
+            0x59bF0545FCa0E5Ad48E13DA269faCD2E8C886Ba4,
+            0xF2dDF89C04d702369Ab9eF8399Edb99a76e951Ce,
+            1
         );
         //vm.stopPrank();
         //vm.startPrank(0xa5c1c5a67Ba16430547FEA9D608Ef81119bE1876);
@@ -47,8 +48,8 @@ contract Debug is DSTest, ERC721TokenReceiver {
         s.file("exec", address(investor));
         vm.stopPrank();
         vm.startPrank(address(multisig));
-        address o = address(new OracleUniswapV2Usdc(0x87425D8812f44726091831a9A109f4bDc3eA34b4, usdc));
-        StrategyHelper(strategyHelper).setOracle(0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8, o);
+        //address o = address(new OracleUniswapV2Usdc(0x87425D8812f44726091831a9A109f4bDc3eA34b4, usdc));
+        //StrategyHelper(strategyHelper).setOracle(0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8, o);
         uint256 sid = investor.nextStrategy();
         investor.setStrategy(sid, address(s));
         vm.stopPrank();
@@ -61,7 +62,7 @@ contract Debug is DSTest, ERC721TokenReceiver {
         console.log("value", s.rate(s.totalShares())/1e16);
         investor.earn(deployer, poolUsdc, sid, 10e6, 0, "");
         console.log("value", s.rate(s.totalShares())/1e16);
-        vm.warp(block.timestamp+3600);
+        vm.warp(block.timestamp+1800);
         s.earn();
         uint256 pid = investor.nextPosition()-2;
         (,,,,,uint256 sha,) = investor.positions(pid);
@@ -102,11 +103,11 @@ contract Debug is DSTest, ERC721TokenReceiver {
         StrategyHelper(strategyHelper).setPath(0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, usdc, shm, abi.encode(assets));
         */
 
-        /* 
+        /*
         vm.stopPrank();
         vm.startPrank(0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9);
         address(0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6).call(
-            hex"20f117190000000000000000000000000000000000000000000000000000000000000219fffffffffffffffffffffffffffffffffffffffffffffffff21f26da76424fcc0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000032"
+            hex"20f1171900000000000000000000000000000000000000000000000000000000000001dc00000000000000000000000000000000000000000000000000000000004c4b400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000032"
         );
         //*/
 

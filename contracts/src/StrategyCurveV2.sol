@@ -4,17 +4,16 @@ pragma solidity 0.8.17;
 import {IERC20} from "./interfaces/IERC20.sol";
 import {Strategy} from "./Strategy.sol";
 
-// TriCrypto Pool 0x960ea3e3C7FB317332d990873d354E18d7645590
-// TriCrypto Gauge 0x97E2768e8E73511cA874545DC5Ff8067eB19B787
-
 interface ICurvePoolV2 {
     function token() external view returns (address);
     function coins(uint256) external view returns (address);
     function virtual_price() external view returns (uint256);
+    function get_virtual_price() external view returns (uint256);
     function price_oracle(uint256) external view returns (uint256);
     function exchange(uint256 i, uint256 j, uint256 dx, uint256 minDy) external view returns (uint256);
+    function add_liquidity(uint256[2] calldata amounts, uint256 minAmount) external;
     function add_liquidity(uint256[3] calldata amounts, uint256 minAmount) external;
-    function remove_liquidity_one_coin(uint256 amount, uint256 i, uint256 minAmount) external;
+    function remove_liquidity_one_coin(uint256 amount, int128 i, uint256 minAmount) external;
 }
 
 interface ICurveGauge {
@@ -41,8 +40,8 @@ contract StrategyCurveV2 is Strategy {
         gauge = ICurveGauge(_gauge);
         inputIndex = _inputIndex;
         inputAsset = IERC20(pool.coins(_inputIndex));
-        poolToken = IERC20(pool.token());
-        name = IERC20(pool.token()).name();
+        poolToken = IERC20(_pool);
+        name = poolToken.name();
     }
 
     function _rate(uint256 sha) internal view override returns (uint256) {
@@ -75,7 +74,7 @@ contract StrategyCurveV2 is Strategy {
         poolToken.approve(address(pool), lps);
         uint256 minValue = (lps * getPoolPrice() / 1e18) * (10000 - slp) / 10000;
         uint256 minAmount = minValue * 1e18 / strategyHelper.price(address(inputAsset));
-        pool.remove_liquidity_one_coin(lps, inputIndex, minAmount);
+        pool.remove_liquidity_one_coin(lps, int128(int256(inputIndex)), minAmount);
 
         // Swap to borrowed asset
         uint256 bal = inputAsset.balanceOf(address(this));
@@ -117,7 +116,7 @@ contract StrategyCurveV2 is Strategy {
         if (bal == 0) return 0;
         uint256 minValue = strategyHelper.value(address(inputAsset), bal) * (10000 - slp) / 10000;
         uint256 minLp = minValue * 1e18 / getPoolPrice();
-        uint256[3] memory amounts = [uint256(0), 0, 0];
+        uint256[2] memory amounts = [uint256(0), 0];
         amounts[inputIndex] = bal;
         inputAsset.approve(address(pool), bal);
         pool.add_liquidity(amounts, minLp);
@@ -129,22 +128,30 @@ contract StrategyCurveV2 is Strategy {
         return lps;
     }
 
+    // Stable2 Pool
     function getPoolPrice() internal view returns (uint256) {
-        uint256 p0 = pool.price_oracle(0);
-        uint256 p1 = pool.price_oracle(1);
-        return 3 * pool.virtual_price() * cbrt(p0 * p1) / 1e18;
+        uint256 p0 = strategyHelper.price(pool.coins(0));
+        uint256 p1 = strategyHelper.price(pool.coins(1));
+        return pool.get_virtual_price() * min(p0, p1) / 1e18;
     }
 
-    function cbrt(uint256 x) internal pure returns (uint256) {
-        uint256 d = x / 1e18;
-        for (uint256 i; i < 255; i++) {
-            uint256 dPrev = d;
-            d = d * (2 * 1e18 + x / d * 1e18 / d * 1e18 / d) / (3 * 1e18);
-            uint256 diff = d > dPrev ? d - dPrev : dPrev - d;
-            if (diff <= 1 || diff * 1e18 < d) {
-                return d;
-            }
-        }
-        revert DidNotConverge();
-    }
+    // TriCrypto
+    //function getPoolPrice() internal view returns (uint256) {
+    //    uint256 p0 = pool.price_oracle(0);
+    //    uint256 p1 = pool.price_oracle(1);
+    //    return 3 * pool.virtual_price() * cbrt(p0 * p1) / 1e18;
+    //}
+    //
+    //function cbrt(uint256 x) internal pure returns (uint256) {
+    //    uint256 d = x / 1e18;
+    //    for (uint256 i; i < 255; i++) {
+    //        uint256 dPrev = d;
+    //        d = d * (2 * 1e18 + x / d * 1e18 / d * 1e18 / d) / (3 * 1e18);
+    //        uint256 diff = d > dPrev ? d - dPrev : dPrev - d;
+    //        if (diff <= 1 || diff * 1e18 < d) {
+    //            return d;
+    //        }
+    //    }
+    //    revert DidNotConverge();
+    //}
 }

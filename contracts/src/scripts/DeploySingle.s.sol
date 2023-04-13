@@ -13,8 +13,8 @@ import {StrategyHelper, StrategyHelperCamelot} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
-import {OracleUniswapV2Eth} from "../OracleUniswapV2Eth.sol";
+import {StrategyCurveV2} from "../StrategyCurveV2.sol";
+import {OracleCurveStable2} from "../OracleCurveStable2.sol";
 import {OracleTWAP} from "../OracleTWAP.sol";
 
 interface Hevm {
@@ -59,10 +59,11 @@ contract DeploySingle {
         //address sushi = 0xd4d42F0b6DEF4CE0383636770eF773390d85c61A;
         //address gmx = 0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a;
         //address umami = 0x1622bF67e6e5747b81866fE0b85178a93C7F86e3;
-        address magic = 0x539bdE0d7Dbd336b79148AA742883198BBF60342;
-        address pls = 0x51318B7D00db7ACc4026C88c3952B66278B6A67F;
-        address vsta = 0xa684cd057951541187f288294a1e1C2646aA2d24;
-        address grail = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8;
+        //address magic = 0x539bdE0d7Dbd336b79148AA742883198BBF60342;
+        //address pls = 0x51318B7D00db7ACc4026C88c3952B66278B6A67F;
+        //address vsta = 0xa684cd057951541187f288294a1e1C2646aA2d24;
+        //address grail = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8;
+        address frax = 0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F;
 
         Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
@@ -71,34 +72,22 @@ contract DeploySingle {
         //address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
-        //address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
+        address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
         //address shCam = 0x7FC67A688F464538259E3F559dc63F00D64F3c0b;
 
         //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
-        //address keeper = 0x3b1F14068Fa2AF4B08b578e80834bC031a52363D;
+        address keeper = 0x3b1F14068Fa2AF4B08b578e80834bC031a52363D;
         address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
         Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
 
         vm.startBroadcast();
 
         /*
-        address o = address(new OracleUniswapV2Eth(
-          0xB7E50106A5bd3Cf21AF210A755F9C8740890A8c9,
-          weth,
-          0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612
-        ));
-        OracleTWAP ot = new OracleTWAP(o);
-        ot.file("exec", address(multisig));
-        ot.file("exec", address(keeper));
-        ot.file("exec", address(deployer));
-        multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setOracle(address,address)", pls, address(ot)));
-        */
-
-        /*
-        StrategyJonesUsdc s = new StrategyJonesUsdc(
-          address(strategyHelper),
-          0x5859731D7b7e413A958eA1cDb9020C611b016395,
-          0x42EfE3E686808ccA051A49BCDE34C5CbA2EBEfc1
+        StrategyCurveV2 s = new StrategyCurveV2(
+            strategyHelper,
+            0x59bF0545FCa0E5Ad48E13DA269faCD2E8C886Ba4,
+            0xF2dDF89C04d702369Ab9eF8399Edb99a76e951Ce,
+            1
         );
         //s.file("slippage", 100);
         s.file("exec", investorActor);
@@ -110,6 +99,15 @@ contract DeploySingle {
         //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setOracle(address,address)", magic, 0xb7AD108628B8876f68349d4F150f33e97f5DAE03));
         //bytes memory b = abi.encodePacked(magic, weth, usdc);
         //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", magic, usdc, shss, b));
+
+        /*
+        OracleCurveStable2 o = new OracleCurveStable2(strategyHelper, 0x59bF0545FCa0E5Ad48E13DA269faCD2E8C886Ba4, 0);
+        OracleTWAP o2 = new OracleTWAP(address(o));
+        o2.file("exec", address(multisig));
+        o2.file("exec", keeper);
+        o2.file("exec", deployer);
+        multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setOracle(address,address)", 0x64343594Ab9b56e99087BfA6F2335Db24c2d1F17, address(o2)));
+        */
 
         /*
         StrategyJonesUsdc s = new StrategyJonesUsdc(
