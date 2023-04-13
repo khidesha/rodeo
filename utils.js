@@ -543,11 +543,11 @@ export const strategies = {
       assets: [
         {
           ratio: 50,
-          address: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+          address: "0x64343594Ab9b56e99087BfA6F2335Db24c2d1F17",
         },
         {
           ratio: 50,
-          address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+          address: "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F",
         },
       ],
     },
