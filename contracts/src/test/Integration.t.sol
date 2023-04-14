@@ -119,6 +119,7 @@ contract IntegrationTest is Test {
         investor.setStrategy(1, address(ss));
 
         su = new StrategyUniswapV3(address(sh), pool, 0);
+        su.file("slippage", 200);
         su.setTwapPeriod(1);
         su2 = new StrategyUniswapV3(address(sh), pool, 1280);
         su2.setTwapPeriod(1);
@@ -126,7 +127,7 @@ contract IntegrationTest is Test {
         su2.file("exec", address(investorActor));
         investor.setStrategy(2, address(su));
         investor.setStrategy(3, address(su2));
-        su2.file("slippage", 9800);
+        su2.file("slippage", 200);
     }
 
     // Tests a somewhat realistic screnario with the least mocks possible
@@ -259,13 +260,13 @@ contract IntegrationTest is Test {
         uint256 shareAmount = rodeoPositionShares / 2;
         vm.prank(vm.addr(3));
         pm.edit(pid, 0 - int256(shareAmount), -75e6, "");
-        assertEq(usdc.balanceOf(vm.addr(3)), 65260738);
+        assertEq(usdc.balanceOf(vm.addr(3)), 63778126);
         assertEq(su.totalShares(), 9810679598853);
 
         // burn the rest
         vm.prank(vm.addr(3));
         pm.edit(pid, 0 - int256(rodeoPositionShares - shareAmount), 0 - int256(borrow - 75e6), "");
-        assertEq(usdc.balanceOf(vm.addr(3)), 90463353);
+        assertEq(usdc.balanceOf(vm.addr(3)), 89295308);
         assertEq(su.totalShares(), 8584052817612);
         (,,,,, rodeoPositionShares, rodeoPositionBorrow) = investor.positions(pid);
         assertEq(rodeoPositionShares, 0);
@@ -276,14 +277,14 @@ contract IntegrationTest is Test {
         usdc.approve(address(pm), 50e6);
         pm.mint(vm.addr(3), address(usdcPool), 3, 50e6, 150e6, "");
         pid = investor.nextPosition() - 1;
-        assertEq(usdc.balanceOf(address(usdcPool)), 805676619);
+        assertEq(usdc.balanceOf(address(usdcPool)), 805546836);
         assertEq(su2.totalShares(), 19209303237864);
         vm.warp(block.timestamp + 1);
         // burn
         (,,,,, rodeoPositionShares, borrow) = investor.positions(pid);
         vm.prank(vm.addr(3));
         pm.edit(pid, 0 - int256(rodeoPositionShares), 0 - int256(borrow), "");
-        assertEq(usdc.balanceOf(vm.addr(3)), 139864287);
+        assertEq(usdc.balanceOf(vm.addr(3)), 138696242);
         assertEq(su2.totalShares(), 0);
     }
 

@@ -35,7 +35,7 @@ contract StrategyCurveV2Test is DSTest {
             address(sh),
             address(pool),
             address(gauge),
-            2
+            0
         );
         usdc.mint(address(this), 1000e6);
         usdc.approve(address(s), 1000e6);
@@ -43,7 +43,7 @@ contract StrategyCurveV2Test is DSTest {
 
     function testRate() public {
         uint256 sha = s.mint(address(usdc), 50e6, "");
-        assertEq(s.rate(sha) / 1e16, 4988);
+        assertEq(s.rate(sha) / 1e16, 5366);
     }
 
     function testMint() public {
@@ -67,10 +67,10 @@ contract StrategyCurveV2Test is DSTest {
         s.earn();
         s.earn();
         s.earn();
-        assertEq(s.rate(sha) / 1e16, 569);
+        assertEq(s.rate(sha) / 1e16, 612);
         s.earn();
         assertEq(s.totalShares(), 0.001205e18);
-        assertEq(s.rate(sha) / 1e16, 725);
+        assertEq(s.rate(sha) / 1e16, 780);
         assertEq(gauge.balanceOf(address(s)), 0.00876758e18);
     }
 

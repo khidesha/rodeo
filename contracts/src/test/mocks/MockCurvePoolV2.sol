@@ -10,7 +10,7 @@ contract MockCurvePoolV2 is MockERC20, Util {
     address[3] public tokens;
 
     constructor(address wbtc, address weth, address usdc) MockERC20(18) {
-        tokens = [wbtc, weth, usdc];
+        tokens = [usdc, weth, wbtc];
     }
 
     function token() external view returns (address) {
@@ -21,24 +21,38 @@ contract MockCurvePoolV2 is MockERC20, Util {
         return tokens[i];
     }
 
+    function get_virtual_price() external view returns (uint256) {
+        return 890646228580708495000;
+    }
+
     function virtual_price() external view returns (uint256) {
         return 1030646228580708495;
     }
 
     function price_oracle(uint256 i) external view returns (uint256) {
-        if (i == 0) return 16000e18;
+        if (i == 0) return 1e18;
         if (i == 1) return 1200e18;
-        if (i == 2) return 1e18;
+        if (i == 2) return 16000e18;
         return 0;
     }
 
+    function add_liquidity(uint256[2] calldata amounts, uint256) external {
+        pull(IERC20(tokens[0]), msg.sender, amounts[0]);
+        mint(msg.sender, amounts[0] * rate / 1e18);
+    }
+
     function add_liquidity(uint256[3] calldata amounts, uint256) external {
-        pull(IERC20(tokens[2]), msg.sender, amounts[2]);
-        mint(msg.sender, amounts[2] * rate / 1e18);
+        pull(IERC20(tokens[0]), msg.sender, amounts[0]);
+        mint(msg.sender, amounts[0] * rate / 1e18);
     }
 
     function remove_liquidity_one_coin(uint256 amount, uint256, uint256) external {
         burn(msg.sender, amount);
-        push(IERC20(tokens[2]), msg.sender, amount * 1e18 / rate);
+        push(IERC20(tokens[0]), msg.sender, amount * 1e18 / rate);
+    }
+
+    function remove_liquidity_one_coin(uint256 amount, int128, uint256) external {
+        burn(msg.sender, amount);
+        push(IERC20(tokens[0]), msg.sender, amount * 1e18 / rate);
     }
 }

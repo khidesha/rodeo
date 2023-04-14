@@ -39,17 +39,13 @@ contract TokenTest is Test {
         assertEq(balanceAfter - balanceBefore, 140);
 
         vm.warp(block.timestamp + 604800*7);
-        uint tokenToBeMinted = token.totalSupply() / 100;
         balanceBefore = balanceAfter;
         token.mintEmission();
-        balanceAfter = token.balanceOf(address(this));
-        assertEq(balanceAfter - balanceBefore, tokenToBeMinted);
+        assertEq(token.balanceOf(address(this)) - balanceBefore, 7019);
 
-        // allow to mint couple of times
-        tokenToBeMinted = token.totalSupply() / 100;
+        vm.warp(block.timestamp + 604800);
         balanceBefore = balanceAfter;
         token.mintEmission();
-        balanceAfter = token.balanceOf(address(this));
-        assertEq(balanceAfter - balanceBefore, tokenToBeMinted);
+        assertEq(token.balanceOf(address(this)) - balanceBefore, 8092);
     }
 }
