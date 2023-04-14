@@ -9,6 +9,7 @@ import {Util} from "./Util.sol";
 // (and blacklist lending pools per strategies)
 contract Guard is Util {
     struct Config {
+        uint256 valueMin;
         uint256 accessRate;
         uint256 leverageMin;
         uint256 leverageMax;
@@ -24,7 +25,7 @@ contract Guard is Util {
     event SetExec(address indexed usr, bool can);
     event SetFeeRebate(uint256 rebateMax, uint256 rebateRate);
     event SetToken(address indexed tkn);
-    event SetStrategy(address indexed str, uint256 arate, uint256 lmin, uint256 lmax, uint256 lrate);
+    event SetStrategy(address indexed str, uint256 vmin, uint256 arate, uint256 lmin, uint256 lmax, uint256 lrate);
     event SetStrategyBlacklist(address indexed str, address tkn, bool on);
 
     constructor(address _token) {
@@ -52,13 +53,14 @@ contract Guard is Util {
         emit SetToken(tkn);
     }
 
-    function setStrategy(address str, uint256 arate, uint256 lmin, uint256 lmax, uint256 lrate) external auth {
+    function setStrategy(address str, uint256 vmin, uint256 arate, uint256 lmin, uint256 lmax, uint256 lrate) external auth {
         Config storage config = strategies[str];
+        config.valueMin = vmin;
         config.accessRate = arate;
         config.leverageMin = lmin;
         config.leverageMax = lmax;
         config.leverageRate = lrate;
-        emit SetStrategy(str, arate, lmin, lmax, lrate);
+        emit SetStrategy(str, vmin, arate, lmin, lmax, lrate);
     }
 
     function setStrategyBlacklist(address str, address tkn, bool on) external auth {
@@ -74,24 +76,26 @@ contract Guard is Util {
         Config storage c = strategies[str];
         uint256 have = token.balanceOf(usr);
         uint256 need = val * c.accessRate / 1e18;
+        uint256 leverage = val * 1e18 / (val - bor);
 
         // costOfMaxRebateForPosition = positionValue * feeRebateRate
         // percentageOfMaxRebatePaid = tokensOwned / costOfMaxRebateForPosition
         // rebate = percentageOfMaxRebatePaid * feeRebateMax
-        uint256 rebate = (have * 1e18 / (val * feeRebateRate / 1e18)) * feeRebateMax / 1e18;
+        uint256 rebate = 0;
+        if (feeRebateRate > 0) rebate = (have * 1e18 / (val * feeRebateRate / 1e18)) * feeRebateMax / 1e18;
         if (rebate > feeRebateMax) rebate = feeRebateMax;
 
-        if (c.poolBlacklist[pol]) {
-            return (false, 0, rebate);
+        if (leverage > 10e18) {
+            return (false, 1, rebate);
         }
-
+        if (c.poolBlacklist[pol]) {
+            return (false, 2, rebate);
+        }
+        if (val < c.valueMin) {
+            return (false, 3, rebate);
+        }
         if (have < need) {
             return (false, need, rebate);
-        }
-
-        uint256 leverage = val * 1e18 / (val - bor);
-        if (leverage > 10e18) {
-            return (false, 0, rebate);
         }
         if (c.leverageRate == 0) {
             return (true, 0, rebate);
@@ -100,7 +104,7 @@ contract Guard is Util {
             return (true, 0, rebate);
         }
         if (leverage > c.leverageMax) {
-            return (false, 0, rebate);
+            return (false, 5, rebate);
         }
         uint256 percent = (leverage - c.leverageMin) * 1e18 / (c.leverageMax - c.leverageMin);
         need = val * (percent * c.leverageRate / 1e18) / 1e18;

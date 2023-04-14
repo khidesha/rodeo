@@ -12,7 +12,7 @@ contract GuardTest is Test {
     function setUp() public override {
         g = new Guard(address(this));
         str = vm.addr(9);
-        g.setStrategy(str, 0.01e18, 5e18, 8e18, 0.025e18);
+        g.setStrategy(str, 100, 0.01e18, 5e18, 8e18, 0.025e18);
         g.setStrategyBlacklist(str, vm.addr(8), true);
     }
 
@@ -33,12 +33,13 @@ contract GuardTest is Test {
     }
 
     function testSetStrategy() public {
-        g.setStrategy(vm.addr(1), 1, 2, 3, 4);
-        (uint256 a, uint256 b, uint256 c, uint256 d) = g.strategies(vm.addr(1));
+        g.setStrategy(vm.addr(1), 1, 2, 3, 4, 5);
+        (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = g.strategies(vm.addr(1));
         assertEq(a, 1);
         assertEq(b, 2);
         assertEq(c, 3);
         assertEq(d, 4);
+        assertEq(e, 5);
     }
 
     function testSetStrategyPoolBlacklist() public {
@@ -53,10 +54,20 @@ contract GuardTest is Test {
         uint256 need;
         uint256 rebate;
 
-        // Fail on blacklisted pool
-        (ok, need, rebate) = g.check(vm.addr(1), str, vm.addr(8), 1e18, 0e18);
+        // Fail on high leverage
+        (ok, need, rebate) = g.check(vm.addr(2), str, pol, 11e18, 10e18);
         assertEq(ok ? 1 : 0, 0);
-        assertEq(need, 0);
+        assertEq(need, 1);
+
+        // Fail on blacklisted pool
+        (ok, need, rebate) = g.check(vm.addr(1), str, vm.addr(8), 1e18, 0);
+        assertEq(ok ? 1 : 0, 0);
+        assertEq(need, 2);
+
+        // Fail too low amount
+        (ok, need, rebate) = g.check(vm.addr(1), str, pol, 15, 0);
+        assertEq(ok ? 1 : 0, 0);
+        assertEq(need, 3);
 
         // Fail on access
         (ok, need, rebate) = g.check(vm.addr(1), str, pol, 10e18, 0e18);
@@ -73,11 +84,6 @@ contract GuardTest is Test {
         (ok, need, rebate) = g.check(vm.addr(4), str, pol, 10e18, 0e18);
         assertEq(rebate, 0.5e18);
 
-        // Fail on high leverage
-        (ok, need, rebate) = g.check(vm.addr(2), str, pol, 11e18, 10e18);
-        assertEq(ok ? 1 : 0, 0);
-        assertEq(need, 0);
-
         // Pass on low leverage
         (ok, need, rebate) = g.check(vm.addr(2), str, pol, 10e18, 5e18);
         assertEq(ok ? 1 : 0, 1);
@@ -86,7 +92,7 @@ contract GuardTest is Test {
         // Fail on high leverage
         (ok, need, rebate) = g.check(vm.addr(2), str, pol, 10.1e18, 9e18);
         assertEq(ok ? 1 : 0, 0);
-        assertEq(need, 0);
+        assertEq(need, 5);
 
         // Fail on leverage but no token
         (ok, need, rebate) = g.check(vm.addr(2), str, pol, 10e18, 8.5e18);
