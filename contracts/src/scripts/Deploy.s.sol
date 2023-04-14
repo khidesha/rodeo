@@ -13,9 +13,9 @@ import {StrategyHelper, StrategyHelperCamelot} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyCurveV2} from "../StrategyCurveV2.sol";
-import {OracleCurveStable2} from "../OracleCurveStable2.sol";
-import {OracleTWAP} from "../OracleTWAP.sol";
+import {StrategyCurveV2} from "../strategies/StrategyCurveV2.sol";
+import {OracleCurveStable2} from "../oracles/OracleCurveStable2.sol";
+import {OracleTWAP} from "../oracles/OracleTWAP.sol";
 
 interface Hevm {
     function warp(uint256) external;
@@ -44,7 +44,7 @@ interface IStrategy {
     function earn() external;
 }
 
-contract DeploySingle {
+contract Deploy {
     event log_named_uint(string key, uint256 val);
     event log_named_address(string key, address val);
     event log_named_bytes(string key, bytes val);

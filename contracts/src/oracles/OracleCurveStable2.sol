@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IStrategyHelper} from "./interfaces/IStrategyHelper.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IStrategyHelper} from "../interfaces/IStrategyHelper.sol";
 
 interface ICurvePool {
     function coins(uint256 i) external view returns (address);

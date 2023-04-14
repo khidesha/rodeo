@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IGlpManager, IRewardRouter} from "./interfaces/IGMX.sol";
-import {IERC20} from "./interfaces/IERC20.sol";
-import {Strategy} from "./Strategy.sol";
+import {Strategy} from "../Strategy.sol";
+import {IGlpManager, IRewardRouter} from "../interfaces/IGMX.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
 
 interface IPlutusDepositor {
     function sGLP() external view returns (address);

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Strategy} from "./Strategy.sol";
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IJoeLBPair, IJoeLBRouter} from "./interfaces/IJoe.sol";
+import {Strategy} from "../Strategy.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IJoeLBPair, IJoeLBRouter} from "../interfaces/IJoe.sol";
 
 contract StrategyJoe is Strategy {
     string public name;

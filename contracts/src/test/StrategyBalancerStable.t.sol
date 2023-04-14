@@ -9,7 +9,7 @@ import {MockStrategyHelper} from "./mocks/MockStrategyHelper.sol";
 import {MockCurveGauge} from "./mocks/MockCurveGauge.sol";
 import {MockBalancerVaultPool} from "./mocks/MockBalancerVaultPool.sol";
 import {Util} from "../Util.sol";
-import {StrategyBalancerStable} from "../StrategyBalancerStable.sol";
+import {StrategyBalancerStable} from "../strategies/StrategyBalancerStable.sol";
 
 contract StrategyBalancerStableTest is DSTest {
     MockERC20 usdc;

@@ -7,7 +7,7 @@ import {MockOracle} from "./mocks/MockOracle.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 import {StrategyHelper} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
-import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
+import {StrategyJonesUsdc} from "../strategies/StrategyJonesUsdc.sol";
 
 contract MockJones {
     address public usdc;

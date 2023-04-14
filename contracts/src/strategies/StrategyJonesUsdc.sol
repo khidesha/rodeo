@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {Strategy} from "./Strategy.sol";
-import {PartnerProxy} from "./PartnerProxy.sol";
-import {IVault4626} from "./interfaces/IVault4626.sol";
+import {Strategy} from "../Strategy.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {PartnerProxy} from "../PartnerProxy.sol";
+import {IVault4626} from "../interfaces/IVault4626.sol";
 
 interface IJonesGlpAdapter {
     function usdc() external view returns (address);

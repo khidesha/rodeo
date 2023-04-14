@@ -7,7 +7,7 @@ import {MockERC20} from "./mocks/MockERC20.sol";
 import {MockStrategyHelper} from "./mocks/MockStrategyHelper.sol";
 import {MockCurveGauge} from "./mocks/MockCurveGauge.sol";
 import {MockCurvePoolV2} from "./mocks/MockCurvePoolV2.sol";
-import {StrategyCurveV2} from "../StrategyCurveV2.sol";
+import {StrategyCurveV2} from "../strategies/StrategyCurveV2.sol";
 
 contract StrategyCurveV2Test is DSTest {
     MockERC20 wbtc;

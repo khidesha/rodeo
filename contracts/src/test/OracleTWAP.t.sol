@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {DSTest} from "./utils/DSTest.sol";
-import {OracleTWAP} from "../OracleTWAP.sol";
+import {OracleTWAP} from "../oracles/OracleTWAP.sol";
 
 contract OracleTWAPTest is DSTest {
     OracleTWAP o;

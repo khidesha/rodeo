@@ -11,8 +11,8 @@ import {InvestorHelper} from "../InvestorHelper.sol";
 import {PoolRateModel} from "../PoolRateModel.sol";
 import {PositionManager} from "../PositionManager.sol";
 import {StrategyHelperUniswapV2, StrategyHelperUniswapV3} from "../StrategyHelper.sol";
-import {StrategySushiswap} from "../StrategySushiswap.sol";
-import {StrategyUniswapV3} from "../StrategyUniswapV3.sol";
+import {StrategySushiswap} from "../strategies/StrategySushiswap.sol";
+import {StrategyUniswapV3} from "../strategies/StrategyUniswapV3.sol";
 
 import {UniswapV2Factory} from "./vendor/sushiswap/uniswapv2/UniswapV2Factory.sol";
 import {UniswapV2Router02} from "./vendor/sushiswap/uniswapv2/UniswapV2Router02.sol";

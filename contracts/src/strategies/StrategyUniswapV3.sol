@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Strategy} from "./Strategy.sol";
-import {IERC20} from "./interfaces/IERC20.sol";
-import {LiquidityAmounts} from "./vendor/LiquidityAmounts.sol";
-import {TickMath} from "./vendor/TickMath.sol";
-import {FullMath} from "./vendor/FullMath.sol";
-import {TickLib} from "./vendor/TickLib.sol";
-import {BytesLib} from "./vendor/BytesLib.sol";
-import {FixedPoint128} from "./vendor/FixedPoint128.sol";
-import {IUniswapV3Pool} from "./interfaces/IUniswapV3Pool.sol";
-import {ISwapRouter} from "./interfaces/ISwapRouter.sol";
-import {IUniswapV3SwapCallback} from "./interfaces/IUniswapV3SwapCallback.sol";
-import {IUniswapV3MintCallback} from "./interfaces/IUniswapV3MintCallback.sol";
-import {IOracle} from "./interfaces/IOracle.sol";
+import {Strategy} from "../Strategy.sol";
+import {LiquidityAmounts} from "../vendor/LiquidityAmounts.sol";
+import {TickMath} from "../vendor/TickMath.sol";
+import {FullMath} from "../vendor/FullMath.sol";
+import {TickLib} from "../vendor/TickLib.sol";
+import {BytesLib} from "../vendor/BytesLib.sol";
+import {FixedPoint128} from "../vendor/FixedPoint128.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IOracle} from "../interfaces/IOracle.sol";
+import {IUniswapV3Pool} from "../interfaces/IUniswapV3Pool.sol";
+import {ISwapRouter} from "../interfaces/ISwapRouter.sol";
+import {IUniswapV3SwapCallback} from "../interfaces/IUniswapV3SwapCallback.sol";
+import {IUniswapV3MintCallback} from "../interfaces/IUniswapV3MintCallback.sol";
 
 contract StrategyUniswapV3 is Strategy, IUniswapV3SwapCallback, IUniswapV3MintCallback {
     error NoLiquidity();

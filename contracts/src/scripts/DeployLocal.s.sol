@@ -12,9 +12,9 @@ import {InvestorHelper} from "../InvestorHelper.sol";
 import {PositionManager} from "../PositionManager.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {StrategyHelper} from "../StrategyHelper.sol";
-import {StrategyTest} from "../StrategyTest.sol";
+import {StrategyTest} from "../strategies/StrategyTest.sol";
 
-contract DeployAll is DSTest {
+contract DeployLocal is DSTest {
     function run() external {
         vm.startBroadcast();
         MockERC20 usdc = new MockERC20(6);

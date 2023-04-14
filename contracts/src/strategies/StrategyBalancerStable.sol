@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {Strategy} from "./Strategy.sol";
-import {IBalancerPool} from "./interfaces/IBalancerPool.sol";
-import {IBalancerVault} from "./interfaces/IBalancerVault.sol";
-import {IBalancerGauge, IBalancerGaugeFactory} from "./interfaces/IBalancerGauge.sol";
+import {Strategy} from "../Strategy.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IBalancerPool} from "../interfaces/IBalancerPool.sol";
+import {IBalancerVault} from "../interfaces/IBalancerVault.sol";
+import {IBalancerGauge, IBalancerGaugeFactory} from "../interfaces/IBalancerGauge.sol";
 
 contract StrategyBalancerStable is Strategy {
     string public name;

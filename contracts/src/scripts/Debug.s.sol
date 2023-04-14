@@ -10,8 +10,8 @@ import {Strategy} from "../Strategy.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
-import {OracleCurveStable2} from "../OracleCurveStable2.sol";
-import {StrategyCurveV2} from "../StrategyCurveV2.sol";
+import {StrategyCurveV2} from "../strategies/StrategyCurveV2.sol";
+import {OracleCurveStable2} from "../oracles/OracleCurveStable2.sol";
 
 import {console} from "../test/utils/console.sol";
 

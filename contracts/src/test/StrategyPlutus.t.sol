@@ -11,7 +11,7 @@ import {MockRouterUniV2} from "./mocks/MockRouterUniV2.sol";
 import {MockOracle} from "./mocks/MockOracle.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
 
-import {StrategyPlutusPlvGlp} from "../StrategyPlutusPlvGlp.sol";
+import {StrategyPlutusPlvGlp} from "../strategies/StrategyPlutusPlvGlp.sol";
 
 import {DSTest} from "./utils/DSTest.sol";
 

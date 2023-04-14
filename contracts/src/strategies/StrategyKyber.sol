@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Strategy} from "./Strategy.sol";
-import {ERC721TokenReceiver} from "./ERC721TokenReceiver.sol";
-import {TickLib} from "./vendor/TickLib.sol";
-import {TickMath} from "./vendor/TickMath.sol";
-import {LiquidityAmounts} from "./vendor/LiquidityAmounts.sol";
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IKyberPool} from "./interfaces/IKyberPool.sol";
-import {IKyberRouter} from "./interfaces/IKyberRouter.sol";
-import {IKyberStaking} from "./interfaces/IKyberStaking.sol";
-import {IKyberPositionManager} from "./interfaces/IKyberPositionManager.sol";
+import {Strategy} from "../Strategy.sol";
+import {ERC721TokenReceiver} from "../ERC721TokenReceiver.sol";
+import {TickLib} from "../vendor/TickLib.sol";
+import {TickMath} from "../vendor/TickMath.sol";
+import {LiquidityAmounts} from "../vendor/LiquidityAmounts.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IKyberPool} from "../interfaces/IKyberPool.sol";
+import {IKyberRouter} from "../interfaces/IKyberRouter.sol";
+import {IKyberStaking} from "../interfaces/IKyberStaking.sol";
+import {IKyberPositionManager} from "../interfaces/IKyberPositionManager.sol";
 
 contract StrategyKyber is Strategy, ERC721TokenReceiver {
     error PriceSlipped();

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {Strategy} from "./Strategy.sol";
-import {IVault4626} from "./interfaces/IVault4626.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {Strategy} from "../Strategy.sol";
+import {IVault4626} from "../interfaces/IVault4626.sol";
 
 contract Strategy4626 is Strategy {
     string public name;

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IPairUniV2} from "./interfaces/IPairUniV2.sol";
-import {Strategy} from "./Strategy.sol";
-import {IRewarderMiniChefV2} from "./interfaces/IRewarderMiniChefV2.sol";
+import {Strategy} from "../Strategy.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IPairUniV2} from "../interfaces/IPairUniV2.sol";
+import {IRewarderMiniChefV2} from "../interfaces/IRewarderMiniChefV2.sol";
 
 contract StrategySushiswap is Strategy {
     string public name;

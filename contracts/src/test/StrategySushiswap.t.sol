@@ -9,7 +9,7 @@ import {MockPairUniV2} from "./mocks/MockPairUniV2.sol";
 import {MockRewarderMiniChefV2} from "./mocks/MockRewarderMiniChefV2.sol";
 import {MockRouterUniV2} from "./mocks/MockRouterUniV2.sol";
 import {StrategyHelper, StrategyHelperUniswapV2} from "../StrategyHelper.sol";
-import {StrategySushiswap} from "../StrategySushiswap.sol";
+import {StrategySushiswap} from "../strategies/StrategySushiswap.sol";
 
 contract StrategySushiswapTest is DSTest {
     MockERC20 aUsdc;

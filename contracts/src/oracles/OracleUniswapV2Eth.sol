@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IOracle} from "./interfaces/IOracle.sol";
-import {IPairUniV2} from "./interfaces/IPairUniV2.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IOracle} from "../interfaces/IOracle.sol";
+import {IPairUniV2} from "../interfaces/IPairUniV2.sol";
 
 contract OracleUniswapV2Eth {
     IPairUniV2 public pair;

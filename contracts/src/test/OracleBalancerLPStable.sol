@@ -8,7 +8,7 @@ import {MockERC20} from "./mocks/MockERC20.sol";
 import {MockStrategyHelper} from "./mocks/MockStrategyHelper.sol";
 import {MockBalancerVaultPool} from "./mocks/MockBalancerVaultPool.sol";
 import {Util} from "../Util.sol";
-import {OracleBalancerLPStable} from "../OracleBalancerLPStable.sol";
+import {OracleBalancerLPStable} from "../oracles/OracleBalancerLPStable.sol";
 
 contract OracleBalancerLPStableTest is DSTest {
     MockERC20 usdc;

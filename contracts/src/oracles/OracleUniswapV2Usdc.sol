@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IOracle} from "./interfaces/IOracle.sol";
-import {IPairUniV2} from "./interfaces/IPairUniV2.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IOracle} from "../interfaces/IOracle.sol";
+import {IPairUniV2} from "../interfaces/IPairUniV2.sol";
 
 // WARNING: This oracle is not manipulation resistant, use with OracleTWAP in front
 contract OracleUniswapV2Usdc {

@@ -5,7 +5,7 @@ import {DSTest} from "./utils/DSTest.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
 import {MockOracle} from "./mocks/MockOracle.sol";
 import {StrategyHelper} from "../StrategyHelper.sol";
-import {StrategyGMXGLP} from "../StrategyGMXGLP.sol";
+import {StrategyGMXGLP} from "../strategies/StrategyGMXGLP.sol";
 
 contract MockGLPRewardTracker {
     constructor() {}

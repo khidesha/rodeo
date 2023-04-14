@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IOracle} from "./interfaces/IOracle.sol";
-import {IUniswapV3Pool} from "./interfaces/IUniswapV3Pool.sol";
-import {OracleLibrary} from "./vendor/OracleLibrary.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IOracle} from "../interfaces/IOracle.sol";
+import {IUniswapV3Pool} from "../interfaces/IUniswapV3Pool.sol";
+import {OracleLibrary} from "../vendor/OracleLibrary.sol";
 
 contract OracleUniswapV3 {
     address public pool;

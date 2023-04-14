@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IERC20} from "./interfaces/IERC20.sol";
-import {IPairUniV2} from "./interfaces/IPairUniV2.sol";
-import {Strategy} from "./Strategy.sol";
+import {Strategy} from "../Strategy.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {IPairUniV2} from "../interfaces/IPairUniV2.sol";
 
 interface ICamelotNFTPoolFactory {
     function grailToken() external view returns (address);

@@ -7,7 +7,7 @@ import {MockOracle} from "./mocks/MockOracle.sol";
 import {MockPoolUniV3} from "./mocks/MockPoolUniV3.sol";
 import {MockRouterUniV3} from "./mocks/MockRouterUniV3.sol";
 import {StrategyHelper, StrategyHelperUniswapV3} from "../StrategyHelper.sol";
-import {StrategyUniswapV3} from "../StrategyUniswapV3.sol";
+import {StrategyUniswapV3} from "../strategies/StrategyUniswapV3.sol";
 import {TickMath} from "../vendor/TickMath.sol";
 import {BytesLib} from "../vendor/BytesLib.sol";
 
