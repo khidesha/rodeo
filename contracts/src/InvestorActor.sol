@@ -9,7 +9,13 @@ import {IStrategy} from "./interfaces/IStrategy.sol";
 import {IInvestor} from "./interfaces/IInvestor.sol";
 import {IPositionManager} from "./interfaces/IPositionManager.sol";
 
+interface IGuard {
+    function check(address usr, address str, address pol, uint256 val, uint256 bor)
+      external view returns (bool ok, uint256 need, uint256 rebate);
+}
+
 contract InvestorActor is Util {
+    error GuardNotOk(uint256 need);
     error WaitBeforeSelling();
     error InsufficientShares();
     error InsufficientBorrow();
@@ -19,6 +25,7 @@ contract InvestorActor is Util {
     error InsufficientAmountForRepay();
 
     IInvestor public investor;
+    IGuard public guard;
     IPositionManager public positionManager;
     uint256 public performanceFee = 0.1e4;
     uint256 public originationFee = 0;
@@ -46,6 +53,7 @@ contract InvestorActor is Util {
 
     function file(bytes32 what, address data) external auth {
         if (what == "exec") exec[data] = !exec[data];
+        if (what == "guard") guard = IGuard(data);
         if (what == "positionManager") positionManager = IPositionManager(data);
         emit FileAddress(what, data);
     }
@@ -53,12 +61,9 @@ contract InvestorActor is Util {
     function life(uint256 id) public view returns (uint256) {
         (, address pol, uint256 str,,, uint256 sha, uint256 bor) = investor.positions(id);
         IPool pool = IPool(pol);
-        IOracle oracle = IOracle(pool.oracle());
         if (bor == 0) return 1e18;
-        uint256 price = (uint256(oracle.latestAnswer()) * 1e18) / (10 ** oracle.decimals());
         uint256 value = (IStrategy(investor.strategies(str)).rate(sha) * pool.liquidationFactor()) / 1e18;
-        uint256 borrow = (bor * 1e18) / (10 ** IERC20(pool.asset()).decimals());
-        borrow = (borrow * pool.getUpdatedIndex() / 1e18) * price / 1e18;
+        uint256 borrow = _borrowValue(pool, bor);
         return value * 1e18 / borrow;
     }
 
@@ -116,11 +121,21 @@ contract InvestorActor is Util {
             amt = 0;
         }
 
+        uint256 rebate;
+        if (address(guard) != address(0)) {
+            (,,,,, uint256 psha,) = investor.positions(id);
+            (bool ok, uint256 need, uint256 _rebate) = guard.check(
+              _positionOwner(id), address(strategy), address(pool), strategy.rate(uint256(int256(psha)+sha)),
+              _borrowValue(pool, uint256(int256(pbor)+bor)));
+            if (!ok) revert GuardNotOk(need);
+            rebate = _rebate;
+        }
+
         // If the new position amount is below zero, collect a performance fee
         // on that portion of the outgoing assets
         {
             uint256 fee;
-            (bas, fee) = _takePerformanceFee(id, aamt, amt);
+            (bas, fee) = _takePerformanceFee(id, aamt, amt, rebate);
             amt = amt - fee;
         }
 
@@ -130,6 +145,13 @@ contract InvestorActor is Util {
             (address own,,,,,,) = investor.positions(id);
             push(asset, own, amt);
         }
+    }
+
+    function _borrowValue(IPool pool, uint256 bor) internal view returns (uint256) {
+        IOracle oracle = IOracle(pool.oracle());
+        uint256 price = (uint256(oracle.latestAnswer()) * 1e18) / (10 ** oracle.decimals());
+        uint256 scaled = (bor * 1e18) / (10 ** IERC20(pool.asset()).decimals());
+        return (scaled * pool.getUpdatedIndex() / 1e18) * price / 1e18;
     }
 
     function _takeBorrowFee(int256 abor, address pool) internal returns (uint256) {
@@ -148,13 +170,14 @@ contract InvestorActor is Util {
         return IStrategy(investor.strategies(str)).burn(IPool(pol).asset(), camt, dat);
     }
 
-    function _takePerformanceFee(uint256 id, int256 aamt, uint256 amt) internal returns (int256, uint256) {
+    function _takePerformanceFee(uint256 id, int256 aamt, uint256 amt, uint256 rebate) internal returns (int256, uint256) {
         uint256 fee;
         int256 bas = (aamt > 0 ? aamt : int256(0)) - int256(amt);
         (, address pol,,, uint256 pamt,,) = investor.positions(id);
         int256 namt = int256(pamt) + bas;
         if (namt < 0) {
             fee = uint256(0 - namt) * performanceFee / 10000;
+            fee = fee * rebate / 1e18;
             IERC20(IPool(pol).asset()).approve(pol, fee);
             IPool(pol).mint(fee, address(0));
         }
@@ -210,12 +233,16 @@ contract InvestorActor is Util {
             asset.approve(address(pool), amt - fee);
             bal = pool.repay(bor);
             if (amt - fee - bal > 0) {
-                (address own,,,,,,) = investor.positions(id);
-                if (own == address(positionManager)) {
-                    own = positionManager.ownerOf(id);
-                }
-                push(asset, own, amt - fee - bal);
+                push(asset, _positionOwner(id), amt - fee - bal);
             }
         }
+    }
+
+    function _positionOwner(uint256 id) internal view returns (address) {
+        (address own,,,,,,) = investor.positions(id);
+        if (own == address(positionManager)) {
+            own = positionManager.ownerOf(id);
+        }
+        return own;
     }
 }
