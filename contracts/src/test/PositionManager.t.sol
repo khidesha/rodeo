@@ -22,7 +22,7 @@ contract PositionManagerTest is Test, ERC721TokenReceiver {
         uint256 before = usdc.balanceOf(address(this));
         vm.warp(block.timestamp + 1);
         pm.edit(id, -123e18, -1e6, "");
-        assertEq(usdc.balanceOf(address(this)) - before, 109999902);
+        assertEq(usdc.balanceOf(address(this)) - before, 121999891);
         vm.expectRevert("NOT_CLOSED");
         pm.burn(id);
         (,,,,,, uint256 borrow) = investor.positions(id);

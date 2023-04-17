@@ -44,7 +44,7 @@ contract InvestorTest is Test, ERC721TokenReceiver {
         assertEq(ow, address(this));
         assertEq(po, address(usdcPool));
         assertEq(st, 0);
-        assertEq(a, 1e6);
+        assertEq(a, 123e6);
         assertEq(s, 123e18);
         assertEq(b, 0);
 
@@ -56,7 +56,7 @@ contract InvestorTest is Test, ERC721TokenReceiver {
         assertEq(ow, address(this));
         assertEq(po, address(usdcPool));
         assertEq(st, 0);
-        assertEq(a, 2e6);
+        assertEq(a, 123e6);
         assertEq(s, 222e18);
         assertEq(b, 2999671);
 
@@ -70,7 +70,7 @@ contract InvestorTest is Test, ERC721TokenReceiver {
         uint256 borrow;
         usdc.approve(address(investor), 3e6);
         usdc.transfer(address(strategy1), 3e6);
-        strategy1.file("rate", 6e18);
+        strategy1.file("rate", 3e18);
         strategy1.file("mint", 100e18);
         strategy1.file("burn", 6e6);
         uint256 id = investor.earn(address(this), address(usdcPool), 0, 1e6, 2e6, "");
@@ -90,10 +90,18 @@ contract InvestorTest is Test, ERC721TokenReceiver {
         uint256 before = usdc.balanceOf(address(this));
         vm.expectCall(address(strategy1), abi.encodeCall(MockStrategy.burn, (address(usdc), 100e18, "")));
         investor.edit(id, -100e18, 0 - int256(borrow), "");
-        assertEq(usdc.balanceOf(address(this)) - before, 3697043);
-        assertEq(usdc.balanceOf(address(usdcPool)), 900302957);
+        assertEq(usdc.balanceOf(address(this)) - before, 3897043);
+        assertEq(usdc.balanceOf(address(usdcPool)), 900102957);
         assertEq(usdc.balanceOf(address(strategy1)), 150000000);
-        assertEq(usdcPool.balanceOf(address(0)), 299617);
+        assertEq(usdcPool.balanceOf(address(0)), 99653);
+
+
+        strategy1.file("rate", 5e18);
+        investorActor.file("guard", address(guard));
+        id = investor.earn(address(this), address(usdcPool), 0, 1e6, 0, "");
+        vm.warp(block.timestamp + 1);
+        investor.edit(id, -100e18, 0, "");
+        assertEq(usdcPool.balanceOf(address(0)), 199635);
     }
 
     function testSave() public {
@@ -107,10 +115,18 @@ contract InvestorTest is Test, ERC721TokenReceiver {
         investor.edit(id, 2e6, 0, "");
         assertEq(usdc.balanceOf(address(strategy1)), 158000000);
         (,,,, uint256 a, uint256 s, uint256 b) = investor.positions(id);
-        assertEq(a, 3e6);
+        assertEq(a, 8e6);
         assertEq(s, 200e18);
         assertEq(b, 1999780);
         assertEq(investor.life(id), 2850001207397144459);
+
+        // Should allow borrowing more without depositing more
+        investor.edit(id, 0, 0.5e6, "");
+
+        // Should disallow borrowing more and divesting shares
+        vm.warp(block.timestamp + 1);
+        vm.expectRevert();
+        investor.edit(id, -1e18, 0.5e6, "");
     }
 
     function testKill() public {

@@ -79,7 +79,7 @@ contract InvestorHelperTest is Test {
         assertEq(bor, 100000000);
         assertEq(borval, 100010958);
         assertEq(lif, 1168371959978375616);
-        assertEq(amt, 50000000);
+        assertEq(amt, 123e6);
         assertEq(price, 1000000000000000000);
     }
 

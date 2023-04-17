@@ -266,7 +266,7 @@ contract IntegrationTest is Test {
         // burn the rest
         vm.prank(vm.addr(3));
         pm.edit(pid, 0 - int256(rodeoPositionShares - shareAmount), 0 - int256(borrow - 75e6), "");
-        assertEq(usdc.balanceOf(vm.addr(3)), 89295308);
+        assertEq(usdc.balanceOf(vm.addr(3)), 89361637);
         assertEq(su.totalShares(), 8584052817612);
         (,,,,, rodeoPositionShares, rodeoPositionBorrow) = investor.positions(pid);
         assertEq(rodeoPositionShares, 0);
@@ -277,14 +277,14 @@ contract IntegrationTest is Test {
         usdc.approve(address(pm), 50e6);
         pm.mint(vm.addr(3), address(usdcPool), 3, 50e6, 150e6, "");
         pid = investor.nextPosition() - 1;
-        assertEq(usdc.balanceOf(address(usdcPool)), 805546836);
+        assertEq(usdc.balanceOf(address(usdcPool)), 805480507);
         assertEq(su2.totalShares(), 19209303237864);
         vm.warp(block.timestamp + 1);
         // burn
         (,,,,, rodeoPositionShares, borrow) = investor.positions(pid);
         vm.prank(vm.addr(3));
         pm.edit(pid, 0 - int256(rodeoPositionShares), 0 - int256(borrow), "");
-        assertEq(usdc.balanceOf(vm.addr(3)), 138696242);
+        assertEq(usdc.balanceOf(vm.addr(3)), 138762571);
         assertEq(su2.totalShares(), 0);
     }
 

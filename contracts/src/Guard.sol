@@ -73,6 +73,10 @@ contract Guard is Util {
     // A user's balance can affect 3 things: Access, Leverage, Performance fee rebate
     // Returns if check passed, tokens needed to pay for leverage, rebate percent
     function check(address usr, address str, address pol, uint256 val, uint256 bor) public view returns (bool, uint256, uint256) {
+        // In case check ever gets called by a strategy rating a position as 0
+        // (like when on liquidate only) return early to avoid divide by 0 errors
+        if (val == 0) return (true, 0, 0);
+
         Config storage c = strategies[str];
         uint256 have = token.balanceOf(usr);
         uint256 need = val * c.accessRate / 1e18;

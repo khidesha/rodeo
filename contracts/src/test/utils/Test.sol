@@ -13,6 +13,7 @@ import {InvestorActor} from "../../InvestorActor.sol";
 import {InvestorHelper} from "../../InvestorHelper.sol";
 import {PositionManager} from "../../PositionManager.sol";
 import {StrategyHelper} from "../../StrategyHelper.sol";
+import {Guard} from "../../Guard.sol";
 
 contract Test is DSTest {
     address t;
@@ -29,6 +30,8 @@ contract Test is DSTest {
     InvestorHelper ih;
     PositionManager pm;
     StrategyHelper sh;
+    Guard guard;
+    MockERC20 guardToken;
 
     function setUp() virtual public {
         t = address(this);
@@ -62,5 +65,8 @@ contract Test is DSTest {
         sh = new StrategyHelper();
         sh.setOracle(address(usdc), address(usdcOracle));
         sh.setOracle(address(weth), address(wethOracle));
+
+        guardToken = new MockERC20(18);
+        guard = new Guard(address(guardToken));
     }
 }

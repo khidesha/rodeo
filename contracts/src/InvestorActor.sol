@@ -110,31 +110,21 @@ contract InvestorActor is Util {
 
         // Make sure whenever a user borrows, all funds go into a strategy
         // if we didn't users could withdraw borrow to their wallet
-        // TODO allow amount to be 0 when leveraging up
-        if (abor > 0 && aamt <= 0) revert CantBorrowAndDivest();
+        if (abor > 0 && aamt < 0) revert CantBorrowAndDivest();
         // We could provide more capital and not borrow or provide no capital and borrow more,
         // but as long as we are not divesting shares or repaying borrow,
         // let's mint more shares with all we got
-        if (abor >= 0 && aamt >= 0) {
+        if (abor > 0 || aamt > 0) {
             asset.approve(address(strategy), amt);
             sha = int256(strategy.mint(address(asset), amt, dat));
             amt = 0;
-        }
-
-        uint256 rebate;
-        if (address(guard) != address(0)) {
-            (,,,,, uint256 psha,) = investor.positions(id);
-            (bool ok, uint256 need, uint256 _rebate) = guard.check(
-              _positionOwner(id), address(strategy), address(pool), strategy.rate(uint256(int256(psha)+sha)),
-              _borrowValue(pool, uint256(int256(pbor)+bor)));
-            if (!ok) revert GuardNotOk(need);
-            rebate = _rebate;
         }
 
         // If the new position amount is below zero, collect a performance fee
         // on that portion of the outgoing assets
         {
             uint256 fee;
+            uint256 rebate = _checkGuardAndGetRebate(id, sha, bor);
             (bas, fee) = _takePerformanceFee(id, aamt, amt, rebate);
             amt = amt - fee;
         }
@@ -145,6 +135,8 @@ contract InvestorActor is Util {
             (address own,,,,,,) = investor.positions(id);
             push(asset, own, amt);
         }
+
+        bas = _maybeSetBasisToInitialRate(id, bas, sha);
     }
 
     function _borrowValue(IPool pool, uint256 bor) internal view returns (uint256) {
@@ -170,6 +162,24 @@ contract InvestorActor is Util {
         return IStrategy(investor.strategies(str)).burn(IPool(pol).asset(), camt, dat);
     }
 
+    function _checkGuardAndGetRebate(uint256 id, int256 sha, int256 bor) internal view returns (uint256) {
+        if (address(guard) == address(0)) return 0;
+        IPool pool;
+        IStrategy strategy;
+        {
+            (, address pol, uint256 str,,, uint256 psha, uint256 pbor) = investor.positions(id);
+            pool = IPool(pol);
+            strategy = IStrategy(investor.strategies(str));
+            sha = sha + int256(psha);
+            bor = bor + int256(pbor);
+        }
+        (bool ok, uint256 need, uint256 rebate) = guard.check(
+          _positionOwner(id), address(strategy), address(pool), strategy.rate(uint256(sha)),
+          _borrowValue(pool, uint256(bor)));
+        if (!ok) revert GuardNotOk(need);
+        return rebate;
+    }
+
     function _takePerformanceFee(uint256 id, int256 aamt, uint256 amt, uint256 rebate) internal returns (int256, uint256) {
         uint256 fee;
         int256 bas = (aamt > 0 ? aamt : int256(0)) - int256(amt);
@@ -177,13 +187,24 @@ contract InvestorActor is Util {
         int256 namt = int256(pamt) + bas;
         if (namt < 0) {
             fee = uint256(0 - namt) * performanceFee / 10000;
-            fee = fee * rebate / 1e18;
+            fee = fee * (1e18 - rebate) / 1e18;
             IERC20(IPool(pol).asset()).approve(pol, fee);
             IPool(pol).mint(fee, address(0));
         }
         // Cap bas (basis change) to position size
         if (bas < 0-int256(pamt)) bas = 0-int256(pamt);
         return (bas, fee);
+    }
+
+    function _maybeSetBasisToInitialRate(uint256 id, int256 bas, int256 sha) internal view returns (int256) {
+        (,address pol, uint256 str, uint256 out,,uint256 psha,) = investor.positions(id);
+        if (out != block.timestamp || psha > 0) return bas;
+        IStrategy strategy = IStrategy(investor.strategies(str));
+        IOracle oracle = IOracle(IPool(pol).oracle());
+        uint256 tokenBasis = 10 ** IERC20(IPool(pol).asset()).decimals();
+        uint256 price = (uint256(oracle.latestAnswer()) * 1e18) / (10 ** oracle.decimals());
+        uint256 value = strategy.rate(uint256(sha)) * tokenBasis / 1e18;
+        return int256(value * 1e18 / price);
     }
 
     function kill(uint256 id, bytes calldata dat, address kpr)
