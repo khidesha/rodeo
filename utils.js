@@ -323,6 +323,7 @@ export const strategies = {
         },
       ],
     },
+    /*
     {
       name: "VLP",
       protocol: "Vela",
@@ -341,6 +342,7 @@ export const strategies = {
         },
       ],
     },
+    */
     {
       name: "MLP",
       protocol: "Mycelium",

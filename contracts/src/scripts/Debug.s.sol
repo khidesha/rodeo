@@ -70,6 +70,7 @@ contract Debug is DSTest, ERC721TokenReceiver {
         console.log("value", s.rate(s.totalShares())/1e16);
         //*/
 
+        /*
         // UPDATE STRATEGY
         PartnerProxy p = new PartnerProxy();
         StrategyPlutusPlvGlp s = new StrategyPlutusPlvGlp(
