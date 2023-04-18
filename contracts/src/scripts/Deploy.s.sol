@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import {DSTest} from "../test/utils/DSTest.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 import {console} from "../test/utils/console.sol";
 import {Investor} from "../Investor.sol";
@@ -17,40 +18,9 @@ import {StrategyCurveV2} from "../strategies/StrategyCurveV2.sol";
 import {OracleCurveStable2} from "../oracles/OracleCurveStable2.sol";
 import {OracleTWAP} from "../oracles/OracleTWAP.sol";
 
-interface Hevm {
-    function warp(uint256) external;
-    function startBroadcast() external;
-    function stopBroadcast() external;
-}
-
-interface IFileable {
-    function nextStrategy() external view returns (uint256);
-    function file(bytes32, uint256) external;
-    function file(bytes32, address) external;
-    function setOracle(address, address) external;
-    function setPath(address, address, address, bytes calldata) external;
-    function setStrategy(uint256, address) external;
-}
-
-interface IConfigurator {
-    function setOracle(address, address, address) external;
-    function setPath(address, address, address, address, bytes calldata) external;
-    function setStrategy(address, uint256, address) external;
-    function transaction(address target, uint256 value, bytes calldata data) external;
-}
-
-interface IStrategy {
-    function slippage() external view returns (uint256);
-    function earn() external;
-}
-
-contract Deploy {
-    event log_named_uint(string key, uint256 val);
-    event log_named_address(string key, address val);
-    event log_named_bytes(string key, bytes val);
-
+contract Deploy is DSTest {
     function run() external {
-        Hevm vm = Hevm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+        vm.startBroadcast();
 
         address weth = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
         address usdc = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
@@ -63,24 +33,49 @@ contract Deploy {
         //address pls = 0x51318B7D00db7ACc4026C88c3952B66278B6A67F;
         //address vsta = 0xa684cd057951541187f288294a1e1C2646aA2d24;
         //address grail = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8;
-        address frax = 0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F;
+        //address frax = 0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F;
 
         Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
         address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
-        //address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
+        address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
         //address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
-        address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
+        //address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
         //address shCam = 0x7FC67A688F464538259E3F559dc63F00D64F3c0b;
 
-        //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
-        address keeper = 0x3b1F14068Fa2AF4B08b578e80834bC031a52363D;
-        address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
         Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
+        address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
+        //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
+        //address keeper = 0x3b1F14068Fa2AF4B08b578e80834bC031a52363D;
 
-        vm.startBroadcast();
+        /*
+        InvestorActor ia = new InvestorActor(address(investor));
+        ia.file("exec", address(multisig));
+        ia.file("exec", address(deployer));
+        bytes memory b = abi.encodeWithSignature("file(bytes32,address)", bytes32("exec"), address(ia));
+        multisig.add(0x70116D50c89FC060203d1fA50374CF1B816Bd0f5, 0, b);
+        multisig.add(0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f, 0, b);
+        multisig.add(0x390358DEf53f2316671ed3B13D4F4731618Ff6A3, 0, b);
+        multisig.add(0x9FA6CaCcE3f868E56Bdab9be85b0a90e2568104d, 0, b);
+        multisig.add(0x05CBD8C4F171247aa8F4dE87b3d9e09883beD511, 0, b);
+        multisig.add(0xFE280C65c328524132205cDd360781484D981e42, 0, b);
+        multisig.add(0xd170cFfd7501bEc329B0c90427f06C9156845Be4, 0, b);
+        multisig.add(0xcF03B33851F088d58E921d8aB5D60Dc1c3238758, 0, b);
+        multisig.add(0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D, 0, b);
+        multisig.add(0xeF22614C3BDeA15b42434eb5F481D722D7e904dB, 0, b);
+        multisig.add(0xCE0488a9FfD70156d8914C02D95fA320DbBE93Ab, 0, b);
+        multisig.add(0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f, 0, b);
+        multisig.add(0x82bE2F89460581F20A4964Fd91c3376d9952a9FF, 0, b);
+        multisig.add(0x8D8627f0bb5A73035678289E5692766EDce341eA, 0, b);
+        multisig.add(0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7, 0, b);
+        multisig.add(0x91308b8d5e2352C7953D88A55D1012D68bF1EfD0, 0, b);
+        multisig.add(0xeB40EA021841d3d6191B76A0056863f52a71b2C5, 0, b);
+        multisig.add(address(poolUsdc), 0, abi.encodeWithSignature("file(bytes32,address)", bytes32("exec"), address(ia)));
+        multisig.add(address(investor), 0, abi.encodeWithSignature("file(bytes32,address)", bytes32("actor"), address(ia)));
+        */
+
 
         /*
         StrategyCurveV2 s = new StrategyCurveV2(

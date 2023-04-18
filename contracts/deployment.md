@@ -5,7 +5,7 @@
 **Core**
 
 - Investor https://arbiscan.io/address/0x8accf43Dd31DfCd4919cc7d65912A475BfA60369
-- InvestorActor https://arbiscan.io/address/0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7
+- InvestorActor https://arbiscan.io/address/0x21E90060Cc39E0DE4e5c8AFb3e941b444fdBEB92
 - InvestorHelper https://arbiscan.io/address/0x6f456005A7CfBF0228Ca98358f60E6AE1d347E18
 - PositionManager https://arbiscan.io/address/0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6
 - Pool (USDC) * https://arbiscan.io/address/0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE
@@ -35,7 +35,6 @@
 - OracleTWAP GRAIL https://arbiscan.io/address/0x0436E619b8cA1ea53d52dD5551ADE688f7F8C499
 - OracleCurveStable2 VST https://arbiscan.io/address/0x4f926aD0DD634060A2A61A1aE7Cf153125b0560E
 - OracleTWAP VST https://arbiscan.io/address/0x64fa380e7FBdbe6C6b275a692259C833C00750CC
-
 
 **Strategies**
 

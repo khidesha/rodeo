@@ -26,6 +26,7 @@ const data4bytes = {
   "0x5c38eb3a": ["setOracle", "address", "address"],
   "0x429725ca": ["setPath", "address", "address", "address", "bytes"],
   "0x29ae8114": ["file", "bytes32", "uint256"],
+  "0xd4e8be83": ["file", "bytes32", "address"],
   "0xfaac4325": ["setStrategy", "uint256", "address"],
   "0xa9059cbb": ["transfer", "address", "uint256"],
 };
@@ -137,7 +138,7 @@ export default function DashboardMultisig() {
       const summary = await contract.getSummary();
       const transactionCount = summary[0].toNumber();
       const transactions = await contract.getPage(
-        Math.max(transactionCount - 15, 0),
+        Math.max(transactionCount - 25, 0),
         transactionCount
       );
       setData({
@@ -237,7 +238,9 @@ export default function DashboardMultisig() {
                   data4bytes[fn][0] +
                   "(" +
                   params
-                    .map((p) => {
+                    .map((p, i) => {
+                      if (data4bytes[fn][i + 1] == "bytes32")
+                        return '"' + ethers.utils.parseBytes32String(p) + '"';
                       if (p.lt && p.lt(1000))
                         return ethers.utils.formatUnits(p, 0);
                       if (p.mul) return ethers.utils.formatUnits(p, 18);

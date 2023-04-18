@@ -38,7 +38,7 @@ contract Multisig {
         threshold = 1;
     }
 
-    fallback() external payable {}
+    receive() external payable {}
 
     function setThreshold(uint256 _threshold) public {
         require(msg.sender == address(this), "not wallet");

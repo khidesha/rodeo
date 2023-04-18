@@ -136,7 +136,7 @@ contract InvestorActor is Util {
             push(asset, own, amt);
         }
 
-        bas = _maybeSetBasisToInitialRate(id, bas, sha);
+        bas = _maybeSetBasisToInitialRate(id, bas, sha, abor);
     }
 
     function _borrowValue(IPool pool, uint256 bor) internal view returns (uint256) {
@@ -196,7 +196,7 @@ contract InvestorActor is Util {
         return (bas, fee);
     }
 
-    function _maybeSetBasisToInitialRate(uint256 id, int256 bas, int256 sha) internal view returns (int256) {
+    function _maybeSetBasisToInitialRate(uint256 id, int256 bas, int256 sha, int256 abor) internal view returns (int256) {
         (,address pol, uint256 str, uint256 out,,uint256 psha,) = investor.positions(id);
         if (out != block.timestamp || psha > 0) return bas;
         IStrategy strategy = IStrategy(investor.strategies(str));
@@ -204,7 +204,7 @@ contract InvestorActor is Util {
         uint256 tokenBasis = 10 ** IERC20(IPool(pol).asset()).decimals();
         uint256 price = (uint256(oracle.latestAnswer()) * 1e18) / (10 ** oracle.decimals());
         uint256 value = strategy.rate(uint256(sha)) * tokenBasis / 1e18;
-        return int256(value * 1e18 / price);
+        return int256(value * 1e18 / price) - abor;
     }
 
     function kill(uint256 id, bytes calldata dat, address kpr)
