@@ -10,17 +10,17 @@ import {Strategy} from "../Strategy.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
-import {StrategyCurveV2} from "../strategies/StrategyCurveV2.sol";
-import {OracleCurveStable2} from "../oracles/OracleCurveStable2.sol";
+import {StrategyPlutusPlvGlp} from "../strategies/StrategyPlutusPlvGlp.sol";
+import {PartnerProxy} from "../PartnerProxy.sol";
 
 import {console} from "../test/utils/console.sol";
 
 contract Debug is DSTest, ERC721TokenReceiver {
     function run() external {
         address usdc = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
-        address weth = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+        //address weth = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
         address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
-        address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
+        address investorActor = 0x21E90060Cc39E0DE4e5c8AFb3e941b444fdBEB92;
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
         Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
@@ -70,24 +70,39 @@ contract Debug is DSTest, ERC721TokenReceiver {
         console.log("value", s.rate(s.totalShares())/1e16);
         //*/
 
-        /*
         // UPDATE STRATEGY
-        StrategyGMXGLP s = new StrategyGMXGLP(
+        PartnerProxy p = new PartnerProxy();
+        StrategyPlutusPlvGlp s = new StrategyPlutusPlvGlp(
           address(strategyHelper),
+          address(p),
           0xB95DB5B167D75e6d04227CfFFA61069348d271F5,
-          0xA906F338CB21815cBc4Bc87ace9e68c87eF8d8F1,
-          0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf,
-          weth, usdc
+          0xEAE85745232983CF117692a1CE2ECf3d19aDA683,
+          0x4E5Cf54FdE5E1237e80E87fcbA555d829e1307CE,
+          usdc
         );
+        p.setExec(address(s), true);
+        p.setExec(address(multisig), true);
+        p.setExec(address(deployer), false);
         s.file("slippage", 100);
         s.file("exec", investorActor);
         s.file("exec", address(investor));
-        StrategyGMXGLP os = StrategyGMXGLP(investor.strategies(12));
-        console.log("value old", os.rate(os.totalShares()));
+        vm.stopPrank();
+        vm.startPrank(0xa5c1c5a67Ba16430547FEA9D608Ef81119bE1876);
+        address(0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d).call(abi.encodeWithSignature("whitelistAdd(address)", address(p)));
+        address(0x16240aC2fBD41F4087421E1525f74338Bc95Cf64).call(abi.encodeWithSignature("whitelistAdd(address)", address(p)));
+        vm.stopPrank();
+        vm.startPrank(deployer);
+        StrategyPlutusPlvGlp os = StrategyPlutusPlvGlp(investor.strategies(21));
+        console.log("value old", os.rate(os.totalShares())/1e16);
         vm.stopPrank();
         vm.startPrank(address(multisig));
-        investor.setStrategy(12, address(s));
-        console.log("value new", s.rate(s.totalShares()));
+        investor.setStrategy(21, address(s));
+        vm.stopPrank();
+        vm.startPrank(deployer);
+        console.log("value new", s.rate(s.totalShares())/1e16);
+        IERC20(usdc).approve(address(investor), type(uint256).max);
+        investor.earn(deployer, poolUsdc, 21, 50e6, 0, "");
+        console.log("value after", s.rate(s.totalShares())/1e16);
         //*/
 
         /*

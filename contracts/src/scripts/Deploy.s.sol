@@ -14,9 +14,7 @@ import {StrategyHelper, StrategyHelperCamelot} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyCurveV2} from "../strategies/StrategyCurveV2.sol";
-import {OracleCurveStable2} from "../oracles/OracleCurveStable2.sol";
-import {OracleTWAP} from "../oracles/OracleTWAP.sol";
+import {StrategyPlutusPlvGlp} from "../strategies/StrategyPlutusPlvGlp.sol";
 
 contract Deploy is DSTest {
     function run() external {
@@ -51,45 +49,24 @@ contract Deploy is DSTest {
         //address keeper = 0x3b1F14068Fa2AF4B08b578e80834bC031a52363D;
 
         /*
-        InvestorActor ia = new InvestorActor(address(investor));
-        ia.file("exec", address(multisig));
-        ia.file("exec", address(deployer));
-        bytes memory b = abi.encodeWithSignature("file(bytes32,address)", bytes32("exec"), address(ia));
-        multisig.add(0x70116D50c89FC060203d1fA50374CF1B816Bd0f5, 0, b);
-        multisig.add(0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f, 0, b);
-        multisig.add(0x390358DEf53f2316671ed3B13D4F4731618Ff6A3, 0, b);
-        multisig.add(0x9FA6CaCcE3f868E56Bdab9be85b0a90e2568104d, 0, b);
-        multisig.add(0x05CBD8C4F171247aa8F4dE87b3d9e09883beD511, 0, b);
-        multisig.add(0xFE280C65c328524132205cDd360781484D981e42, 0, b);
-        multisig.add(0xd170cFfd7501bEc329B0c90427f06C9156845Be4, 0, b);
-        multisig.add(0xcF03B33851F088d58E921d8aB5D60Dc1c3238758, 0, b);
-        multisig.add(0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D, 0, b);
-        multisig.add(0xeF22614C3BDeA15b42434eb5F481D722D7e904dB, 0, b);
-        multisig.add(0xCE0488a9FfD70156d8914C02D95fA320DbBE93Ab, 0, b);
-        multisig.add(0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f, 0, b);
-        multisig.add(0x82bE2F89460581F20A4964Fd91c3376d9952a9FF, 0, b);
-        multisig.add(0x8D8627f0bb5A73035678289E5692766EDce341eA, 0, b);
-        multisig.add(0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7, 0, b);
-        multisig.add(0x91308b8d5e2352C7953D88A55D1012D68bF1EfD0, 0, b);
-        multisig.add(0xeB40EA021841d3d6191B76A0056863f52a71b2C5, 0, b);
-        multisig.add(address(poolUsdc), 0, abi.encodeWithSignature("file(bytes32,address)", bytes32("exec"), address(ia)));
-        multisig.add(address(investor), 0, abi.encodeWithSignature("file(bytes32,address)", bytes32("actor"), address(ia)));
-        */
-
-
-        /*
-        StrategyCurveV2 s = new StrategyCurveV2(
-            strategyHelper,
-            0x59bF0545FCa0E5Ad48E13DA269faCD2E8C886Ba4,
-            0xF2dDF89C04d702369Ab9eF8399Edb99a76e951Ce,
-            1
+        PartnerProxy p = new PartnerProxy();
+        StrategyPlutusPlvGlp s = new StrategyPlutusPlvGlp(
+          address(strategyHelper),
+          address(p),
+          0xB95DB5B167D75e6d04227CfFFA61069348d271F5,
+          0xEAE85745232983CF117692a1CE2ECf3d19aDA683,
+          0x4E5Cf54FdE5E1237e80E87fcbA555d829e1307CE,
+          usdc
         );
-        //s.file("slippage", 100);
+        p.setExec(address(s), true);
+        p.setExec(address(multisig), true);
+        p.setExec(address(deployer), false);
+        s.file("slippage", 100);
         s.file("exec", investorActor);
         s.file("exec", address(investor));
         s.file("exec", address(multisig));
         s.file("exec", address(deployer));
-        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", investor.nextStrategy(), address(s)));
+        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", 21/*investor.nextStrategy()*/, address(s)));
         //*/
         //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setOracle(address,address)", magic, 0xb7AD108628B8876f68349d4F150f33e97f5DAE03));
         //bytes memory b = abi.encodePacked(magic, weth, usdc);

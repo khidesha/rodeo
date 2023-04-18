@@ -46,7 +46,8 @@
 - StrategySushiswap ETH/USDT https://arbiscan.io/address/0xFE280C65c328524132205cDd360781484D981e42
 - StrategyUniswapV3 ETH/USDC 0.05 https://arbiscan.io/address/0xd170cFfd7501bEc329B0c90427f06C9156845Be4
 - StrategyKyber wstETH/ETH https://arbiscan.io/address/0xcF03B33851F088d58E921d8aB5D60Dc1c3238758
-- StrategyPlutusPlvGlp https://arbiscan.io/address/0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D
+- StrategyPlutusPlvGlp PartnerProxy https://arbiscan.io/address/0xfF1249c81e6614796381e0b9c88a3D080dAD01dF
+- StrategyPlutusPlvGlp https://arbiscan.io/address/0x7174aD2d9C836B845ba5611dc5b90740707060eA
 - StrategyJonesUsdc PartnerProxy https://arbiscan.io/address/0x5859731D7b7e413A958eA1cDb9020C611b016395
 - StrategyJonesUsdc https://arbiscan.io/address/0xeF22614C3BDeA15b42434eb5F481D722D7e904dB
 - StrategyJoe ETH/USDC https://arbiscan.io/address/0xCE0488a9FfD70156d8914C02D95fA320DbBE93Ab

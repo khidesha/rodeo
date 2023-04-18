@@ -12,6 +12,7 @@ import {MockOracle} from "./mocks/MockOracle.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
 
 import {StrategyPlutusPlvGlp} from "../strategies/StrategyPlutusPlvGlp.sol";
+import {PartnerProxy} from "../PartnerProxy.sol";
 
 import {DSTest} from "./utils/DSTest.sol";
 
@@ -230,6 +231,7 @@ contract StrategyPlutusPlvGlpTest is DSTest {
     MockOracle oUsdc;
     MockOracle oAsset;
 
+    PartnerProxy proxy;
     StrategyPlutusPlvGlp strategy;
     StrategyHelper sh;
     StrategyHelperUniswapV2 shss;
@@ -290,13 +292,16 @@ contract StrategyPlutusPlvGlpTest is DSTest {
         sh.setPath(address(asset), address(usdc), address(shss), abi.encodePacked(address(asset), address(usdc)));
         sh.setPath(address(usdc), address(asset), address(shss), abi.encodePacked(address(usdc), address(asset)));
 
+        proxy = new PartnerProxy();
         strategy = new StrategyPlutusPlvGlp(
             address(sh),
+            address(proxy),
             address(rewardRouter),
             address(plvDepositor),
             address(plvGLPFarm),
             address(usdc)
         );
+        proxy.setExec(address(strategy), true);
 
         // Pre-approving the strategy to take the asset token
         asset.approve(address(strategy), assetBalance);
@@ -332,6 +337,7 @@ contract StrategyPlutusPlvGlpTest is DSTest {
     function testExit() public {
         StrategyPlutusPlvGlp strategy2 = new StrategyPlutusPlvGlp(
             address(sh),
+            address(proxy),
             address(rewardRouter),
             address(plvDepositor),
             address(plvGLPFarm),

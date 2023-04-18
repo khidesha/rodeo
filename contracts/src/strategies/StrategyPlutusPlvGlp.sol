@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {Strategy} from "../Strategy.sol";
 import {IGlpManager, IRewardRouter} from "../interfaces/IGMX.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
+import {PartnerProxy} from "../PartnerProxy.sol";
 
 interface IPlutusDepositor {
     function sGLP() external view returns (address);
@@ -28,6 +29,7 @@ interface IPlutusVault {
 
 contract StrategyPlutusPlvGlp is Strategy {
     string public constant name = "PlutusDAO plvGLP";
+    PartnerProxy public proxy;
     IRewardRouter public glpRouter;
     IGlpManager public glpManager;
     IPlutusDepositor public plsDepositor;
@@ -40,9 +42,10 @@ contract StrategyPlutusPlvGlp is Strategy {
     IERC20 public pls;
     IERC20 public plvGlp;
 
-    constructor(address _strategyHelper, address _glpRouter, address _plsDepositor, address _plsFarm, address _usdc)
+    constructor(address _strategyHelper, address _proxy, address _glpRouter, address _plsDepositor, address _plsFarm, address _usdc)
         Strategy(_strategyHelper)
     {
+        proxy = PartnerProxy(_proxy);
         glpRouter = IRewardRouter(_glpRouter);
         glpManager = IGlpManager(glpRouter.glpManager());
         glp = IERC20(glpManager.glp());
@@ -74,8 +77,7 @@ contract StrategyPlutusPlvGlp is Strategy {
     }
 
     function _rate(uint256 sha) internal view override returns (uint256) {
-        IPlutusVault vault = IPlutusVault(plsDepositor.vault());
-        uint256 amt = vault.convertToAssets(totalManagedAssets());
+        uint256 amt = IPlutusVault(address(plvGlp)).convertToAssets(totalManagedAssets());
         uint256 pri = glpManager.getPrice(false);
         uint256 tot = amt * pri / glpManager.PRICE_PRECISION();
         return sha * tot / totalShares;
@@ -88,17 +90,18 @@ contract StrategyPlutusPlvGlp is Strategy {
         pull(IERC20(ast), msg.sender, amt);
         IERC20(ast).approve(address(strategyHelper), amt);
         strategyHelper.swap(ast, address(usdc), amt, slp, address(this));
-        uint256 qty = _mintPlvGlp(slp);
+        uint256 qty = _mintGlpAndPlvGlp(slp);
         return tma == 0 ? qty : (qty * totalShares) / tma;
     }
 
     function _burn(address ast, uint256 sha, bytes calldata dat) internal override returns (uint256) {
         uint256 slp = getSlippage(dat);
         uint256 amt = (sha * totalManagedAssets()) / totalShares;
-        plsFarm.withdraw(uint96(amt));
-        plvGlp.approve(address(plsDepositor), amt);
-        plsDepositor.redeem(amt);
-        amt = fsGlp.balanceOf(address(this));
+        proxy.call(address(plsFarm), 0, abi.encodeWithSignature("withdraw(uint96)", amt));
+        proxy.call(address(plvGlp), 0, abi.encodeWithSignature("approve(address,uint256)", address(plsDepositor), amt));
+        proxy.call(address(plsDepositor), 0, abi.encodeWithSignature("redeem(uint256)", amt));
+        amt = fsGlp.balanceOf(address(proxy));
+        proxy.call(address(sGlp), 0, abi.encodeWithSignature("transfer(address,uint256)", address(this), amt));
         uint256 pri = (glpManager.getAumInUsdg(false) * 1e18) / glp.totalSupply();
         uint256 min = (((amt * pri) / 1e18) * (10000 - slp)) / 10000;
         min = (min * (10 ** IERC20(usdc).decimals())) / 1e18;
@@ -108,35 +111,47 @@ contract StrategyPlutusPlvGlp is Strategy {
     }
 
     function _earn() internal override {
-        plsFarm.harvest();
+        proxy.call(address(plsFarm), 0, abi.encodeWithSignature("harvest()"));
+        proxy.pull(address(pls));
         uint256 amt = pls.balanceOf(address(this));
-        if (strategyHelper.value(address(pls), amt) > 0.5e18) {
-            pls.approve(address(strategyHelper), amt);
-            strategyHelper.swap(address(pls), address(usdc), amt, slippage, address(this));
-            _mintPlvGlp(slippage);
-        }
+        if (strategyHelper.value(address(pls), amt) < 0.5e18) return;
+        pls.approve(address(strategyHelper), amt);
+        strategyHelper.swap(address(pls), address(usdc), amt, slippage, address(this));
+        _mintGlpAndPlvGlp(slippage);
     }
 
     function _exit(address str) internal override {
-        uint256 tma = totalManagedAssets();
-        plsFarm.withdraw(uint96(tma));
-        push(plvGlp, str, tma);
+        push(IERC20(address(pls)), str, pls.balanceOf(address(this)));
+        proxy.setExec(str, true);
+        proxy.setExec(address(this), false);
     }
 
     function _move(address) internal override {
-        uint256 amt = plvGlp.balanceOf(address(this));
-        plvGlp.approve(address(plsFarm), amt);
-        plsFarm.deposit(uint96(amt));
+        // proxy already owns farm deposit
+        // TODO for this move only, take the transfered plvGLP and deposit into farm
+        plvGlp.transfer(address(proxy), plvGlp.balanceOf(address(this)));
+        _depositIntoFarm();
     }
 
-    function _mintPlvGlp(uint256 slp) private returns (uint256) {
+    function _mintGlpAndPlvGlp(uint256 slp) private returns (uint256) {
         _mintGlp(slp);
+        _mintPlvGlp();
+        return _depositIntoFarm();
+    }
+
+    function _mintPlvGlp() private returns (uint256) {
         uint256 amt = fsGlp.balanceOf(address(this));
-        sGlp.approve(address(plsDepositor), amt);
-        plsDepositor.deposit(amt);
-        amt = plvGlp.balanceOf(address(this));
-        plvGlp.approve(address(plsFarm), amt);
-        plsFarm.deposit(uint96(amt));
+        if (amt <= 1e18) return 0;
+        sGlp.transfer(address(proxy), amt);
+        proxy.call(address(sGlp), 0, abi.encodeWithSignature("approve(address,uint256)", address(plsDepositor), amt));
+        proxy.call(address(plsDepositor), 0, abi.encodeWithSignature("deposit(uint256)", amt));
+        return amt;
+    }
+
+    function _depositIntoFarm() private returns (uint256) {
+        uint256 amt = plvGlp.balanceOf(address(proxy));
+        proxy.call(address(plvGlp), 0, abi.encodeWithSignature("approve(address,uint256)", address(plsFarm), amt));
+        proxy.call(address(plsFarm), 0, abi.encodeWithSignature("deposit(uint96)", uint96(amt)));
         return amt;
     }
 
@@ -149,8 +164,9 @@ contract StrategyPlutusPlvGlp is Strategy {
         glpRouter.mintAndStakeGlp(address(usdc), amt, minUsd, minGlp);
     }
 
+
     function totalManagedAssets() internal view returns (uint256) {
-        (uint96 tma,) = plsFarm.userInfo(address(this));
+        (uint96 tma,) = plsFarm.userInfo(address(proxy));
         return uint256(tma);
     }
 }
