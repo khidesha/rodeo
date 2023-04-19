@@ -285,24 +285,47 @@ task("events", 15, async () => {
         name: l.name,
         data: values,
       });
-      if (l.name === "Kill") {
-        telegramMessageTry(
-          `Position Liquidation:\nIndex ${values.id}\nAmount ${l.args.amount
-            .div(ONE6)
-            .toString()}\nBorrow ${l.args.borrow
-            .div(ONE6)
-            .toString()}\nFee ${l.args.fee.div(ONE6).toString()}\nKeeper ${
+      try {
+        const data = await call(
+          config.investorHelper,
+          "peekPosition-uint256-address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256",
+          values.id
+        );
+        const roi = data[4].sub(
+          data[5].add(data[7]).mul(data[8]).div(ethers.utils.parseUnits("1", 6))
+        );
+        let text = `**Position #${values.id}**\n\n` + "```\n";
+        text +=
+          `Value   ${formatNumber(data[4])}\nBorrow  ${formatNumber(
+            data[5].mul(data[8]).div(ethers.utils.parseUnits("1", 6))
+          )}\nBasis   ${formatNumber(
+            data[7].mul(data[8]),
+            24
+          )}\nROI     ${formatNumber(roi)} (${formatNumber(
+            roi.mul(ONE6).div(data[7])
+          )}%)\nLife    ${formatNumber(data[6])}\n` + "```\n";
+
+        if (l.name === "Kill") {
+          text += `Liquidation: Fee ${formatNumber(l.args.fee, 6)} Keeper ${
             l.args.keeper
-          }`
-        );
-      } else {
-        telegramMessageTry(
-          `Position Change:\nIndex ${
-            values.id
-          }\nAmount (+Add/-Shares) ${l.args.amount
-            .div(ONE6)
-            .toString()}\nBorrow Change ${l.args.borrowed.div(ONE6).toString()}`
-        );
+          }`;
+          telegramMessageTry(text);
+        } else {
+          text += `Change:`;
+          if (l.args.amount.gt(0))
+            text += ` Deposit ${formatNumber(l.args.amount, 6)}`;
+          if (l.args.amount.lt(0))
+            text += ` Sell ${formatNumber(
+              l.args.amount.mul(-1).mul(data[4]).div(data[2])
+            )}`;
+          if (l.args.amount.gt(0))
+            text += ` Borrow ${formatNumber(l.args.borrowed, 6)}`;
+          if (l.args.amount.lt(0))
+            text += ` Repay ${formatNumber(l.args.borrowed.mul(-1), 6)}`;
+          telegramMessageTry(text);
+        }
+      } catch (e) {
+        console.error("Error sending position change message", e);
       }
     }
 
@@ -447,6 +470,14 @@ function newId() {
   id <<= 12n;
   id |= newIdSeq % 4096n;
   return id.toString(10);
+}
+
+function formatNumber(amount, decimals = 18, decimalsShown = 2) {
+  return Intl.NumberFormat("en-US", {
+    useGrouping: true,
+    minimumFractionDigits: decimalsShown,
+    maximumFractionDigits: decimalsShown,
+  }).format(parseFloat(ethers.utils.formatUnits(amount, decimals)));
 }
 
 async function telegramCall(fn, args) {
